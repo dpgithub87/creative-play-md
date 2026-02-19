@@ -2,8 +2,9 @@ import { useState } from "react";
 import { SparkleBackground } from "@/components/SparkleBackground";
 import { GameForm, GameFormData } from "@/components/GameForm";
 import { GameOutput, GameResult } from "@/components/GameOutput";
-import { generateMockGame } from "@/lib/mockGameGenerator";
+import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 const Index = () => {
   const [game, setGame] = useState<GameResult | null>(null);
@@ -13,11 +14,19 @@ const Index = () => {
   const handleGenerate = async (data: GameFormData) => {
     setIsLoading(true);
     setLastFormData(data);
-    // Simulate API delay
-    await new Promise((r) => setTimeout(r, 1500));
-    const result = generateMockGame(data);
-    setGame(result);
-    setIsLoading(false);
+    try {
+      const { data: result, error } = await supabase.functions.invoke("generate-game", {
+        body: data,
+      });
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+      setGame(result as GameResult);
+    } catch (err: any) {
+      console.error("Generation failed:", err);
+      toast.error(err.message || "Failed to generate game. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRegenerate = () => {
