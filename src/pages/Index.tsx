@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const [gameReady, setGameReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { setPendingGame } = useGame();
   const { user } = useAuth();
@@ -27,7 +26,6 @@ const Index = () => {
       if (error) throw error;
       if (result?.error) throw new Error(result.error);
       setPendingGame(result as GameResult);
-      setGameReady(true);
 
       // If already signed in, go directly
       if (user) {
@@ -69,20 +67,22 @@ const Index = () => {
           </p>
         </header>
 
-        {/* Form Card */}
-        <div className="bg-gradient-card border border-border rounded-2xl p-6 md:p-8 glow-border mb-10">
-          <GameForm onGenerate={handleGenerate} isLoading={isLoading} />
-        </div>
+        {/* Form Card - only show when signed in */}
+        {user && (
+          <div className="bg-gradient-card border border-border rounded-2xl p-6 md:p-8 glow-border mb-10">
+            <GameForm onGenerate={handleGenerate} isLoading={isLoading} />
+          </div>
+        )}
 
-        {/* CTA Button when game is ready */}
-        {gameReady && !user && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex justify-center">
+        {/* Sign in prompt when not authenticated */}
+        {!user && (
+          <div className="flex justify-center mb-10">
             <Button
               onClick={handleSignInToSee}
               className="h-14 px-8 text-lg font-display font-semibold rounded-xl bg-gradient-to-r from-background via-primary to-background border border-primary/40 text-[hsl(0,0%,78%)] hover:text-[hsl(0,0%,90%)] hover:border-primary/60 shadow-[0_0_30px_hsl(var(--glow-primary)/0.3)] hover:shadow-[0_0_50px_hsl(var(--glow-primary)/0.5)] transition-all duration-300"
             >
               <Lock className="h-5 w-5 mr-2" />
-              ✨ Your game is ready! Sign in to see
+              Please sign in to generate your game
             </Button>
           </div>
         )}

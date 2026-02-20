@@ -63,6 +63,11 @@ const GameResultPage = () => {
             </Button>
           </div>
         </header>
+        <div className="mb-6">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-gradient">
+            This is your game, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Player"}
+          </h2>
+        </div>
         <GameOutput game={pendingGame} onRegenerate={() => navigate("/")} isLoading={false} />
       </div>
     </div>
