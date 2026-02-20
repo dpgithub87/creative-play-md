@@ -19,10 +19,10 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const ageLabels: Record<string, string> = {
-      toddlers: "Toddlers (2-3)",
-      preschool: "Preschool (4-5)",
-      kids: "Kids (6-9)",
-      preteens: "Preteens (10-12)",
+      toddlers: "Toddler (1-3)",
+      older_kids: "Older Kid (4-9)",
+      preteens: "Preteen (10-12)",
+      teens: "Teen (13-17)",
     };
 
     const propLabels: Record<string, string> = {

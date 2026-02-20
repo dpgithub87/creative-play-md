@@ -59,10 +59,10 @@ export const GameForm = ({ onGenerate, isLoading }: GameFormProps) => {
               <SelectValue placeholder="Select age group" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="toddlers">Toddlers (2–3)</SelectItem>
-              <SelectItem value="preschool">Preschool (4–5)</SelectItem>
-              <SelectItem value="kids">Kids (6–9)</SelectItem>
-              <SelectItem value="preteens">Preteens (10–12)</SelectItem>
+              <SelectItem value="toddlers">Toddler (1–3)</SelectItem>
+              <SelectItem value="older_kids">Older Kid (4–9)</SelectItem>
+              <SelectItem value="preteens">Preteen (10–12)</SelectItem>
+              <SelectItem value="teens">Teen (13–17)</SelectItem>
             </SelectContent>
           </Select>
         </div>
