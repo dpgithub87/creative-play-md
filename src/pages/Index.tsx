@@ -1,26 +1,38 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SparkleBackground } from "@/components/SparkleBackground";
 import { GameForm, GameFormData } from "@/components/GameForm";
-import { GameOutput, GameResult } from "@/components/GameOutput";
+import { GameResult } from "@/components/GameOutput";
+import { useGame } from "@/contexts/GameContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles } from "lucide-react";
+import { lovable } from "@/integrations/lovable/index";
+import { Sparkles, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const [game, setGame] = useState<GameResult | null>(null);
+  const [gameReady, setGameReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [lastFormData, setLastFormData] = useState<GameFormData | null>(null);
+  const { setPendingGame } = useGame();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleGenerate = async (data: GameFormData) => {
     setIsLoading(true);
-    setLastFormData(data);
     try {
       const { data: result, error } = await supabase.functions.invoke("generate-game", {
         body: data,
       });
       if (error) throw error;
       if (result?.error) throw new Error(result.error);
-      setGame(result as GameResult);
+      setPendingGame(result as GameResult);
+      setGameReady(true);
+
+      // If already signed in, go directly
+      if (user) {
+        navigate("/game");
+      }
     } catch (err: any) {
       console.error("Generation failed:", err);
       toast.error(err.message || "Failed to generate game. Please try again.");
@@ -29,8 +41,13 @@ const Index = () => {
     }
   };
 
-  const handleRegenerate = () => {
-    if (lastFormData) handleGenerate(lastFormData);
+  const handleSignInToSee = async () => {
+    const { error } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/game",
+    });
+    if (error) {
+      toast.error("Sign-in failed. Please try again.");
+    }
   };
 
   return (
@@ -57,10 +74,16 @@ const Index = () => {
           <GameForm onGenerate={handleGenerate} isLoading={isLoading} />
         </div>
 
-        {/* Output */}
-        {game && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <GameOutput game={game} onRegenerate={handleRegenerate} isLoading={isLoading} />
+        {/* CTA Button when game is ready */}
+        {gameReady && !user && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex justify-center">
+            <Button
+              onClick={handleSignInToSee}
+              className="h-14 px-8 text-lg font-display font-semibold rounded-xl bg-gradient-to-r from-background via-primary to-background border border-primary/40 text-[hsl(0,0%,78%)] hover:text-[hsl(0,0%,90%)] hover:border-primary/60 shadow-[0_0_30px_hsl(var(--glow-primary)/0.3)] hover:shadow-[0_0_50px_hsl(var(--glow-primary)/0.5)] transition-all duration-300"
+            >
+              <Lock className="h-5 w-5 mr-2" />
+              ✨ Your game is ready! Sign in to see
+            </Button>
           </div>
         )}
       </div>
