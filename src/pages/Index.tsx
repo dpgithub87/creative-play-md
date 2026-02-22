@@ -41,7 +41,7 @@ const Index = () => {
 
   const handleSignInToSee = async () => {
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/game",
+      redirect_uri: window.location.origin,
     });
     if (error) {
       toast.error("Sign-in failed. Please try again.");
